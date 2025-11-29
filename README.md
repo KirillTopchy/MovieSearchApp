@@ -3,8 +3,8 @@
 A simple two-project solution for searching movies via OMDb API with a Blazor Server frontend and an ASP.NET Core Web API backend. It supports searching by title and stores search history in a local database.
 
 ## Projects
-- `MovieSearchBackend` – ASP.NET Core Web API (NET 8) that proxies OMDb requests and persists search history using EF Core.
-- `MovieSearchFrontend` – Blazor Server (NET 8) UI for searching movies and viewing history.
+- `MovieSearchBackend` â€“ ASP.NET Core Web API (NET 8) that proxies OMDb requests and persists search history using EF Core.
+- `MovieSearchFrontend` â€“ Blazor Server (NET 8) UI for searching movies and viewing history.
 
 ## Prerequisites
 - .NET 8 SDK
@@ -36,16 +36,14 @@ You can run backend and frontend from the solution directory.
 1. Backend:
    - `cd MovieSearchBackend`
    - `dotnet restore`
-   - `dotnet ef database update` (creates the local DB; optional if migrations run on startup)
    - `dotnet run`
-   - The API will listen based on `Properties/launchSettings.json` (typically `https://localhost:7245` and `http://localhost:5245`).
+   - The API will listen based on `https://localhost:7183/swagger/index.html`. With swagger enabled.
 
 2. Frontend:
    - `cd MovieSearchFrontend`
    - `dotnet restore`
-   - Ensure frontend is configured to call the backend (by default it uses relative paths like `/api/movies/...` when both run under the same IIS Express/Kestrel solution).
    - `dotnet run`
-   - The frontend will start (typically `https://localhost:7108` and `http://localhost:5108`).
+   - The frontend will start on `https://localhost:7007`.
 
 ### Option B: Start from Visual Studio
 - Open the solution, set `MovieSearchBackend` as the startup project and run.
@@ -81,6 +79,5 @@ You can run backend and frontend from the solution directory.
 
 ## Troubleshooting
 - Missing OMDb key: Backend returns an error; set `Omdb:ApiKey`.
-- CORS/URL mismatch: If hosting separately, ensure frontend calls the correct backend base address or reverse proxy them together.
 - SSL dev cert issues: Run `dotnet dev-certs https --trust`.
 - Migrations: If schema changes, run `dotnet ef migrations add <Name>` then `dotnet ef database update`.
