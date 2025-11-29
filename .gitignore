@@ -416,3 +416,8 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# SQLite local database files (backend)
+MovieSearchBackend/history.db
+MovieSearchBackend/history.db-shm
+MovieSearchBackend/history.db-wal
