@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieSearchBackend", "MovieSearchBackend\MovieSearchBackend.csproj", "{A5448D65-D3B9-4575-8B72-A8FB36E4B8A2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieSearchClient", "MovieSearchClient\MovieSearchClient.csproj", "{48AC108D-0B7D-4C07-9CD7-342DF2387873}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieSearchFrontend", "MovieSearchFrontend\MovieSearchFrontend.csproj", "{48AC108D-0B7D-4C07-9CD7-342DF2387873}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieSearchBackend.Tests", "MovieSearchBackend.Tests\MovieSearchBackend.Tests.csproj", "{EDB0404C-C83B-4D6B-A579-791906EF33F4}"
 EndProject

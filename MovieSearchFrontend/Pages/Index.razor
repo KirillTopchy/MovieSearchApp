@@ -1,0 +1,101 @@
+﻿@page "/"
+@using MovieSearchFrontend.Models
+@inject HttpClient Http
+
+<h3>Movie Search</h3>
+
+<input @bind-value="query" @bind-value:event="oninput" placeholder="Enter title" @onkeypress="HandleKeyPress" />
+<button @onclick="Search" disabled="@string.IsNullOrWhiteSpace(query)">Search</button>
+
+@if (results != null)
+{
+    if (results.Count == 0)
+    {
+        <p><em>No results found.</em></p>
+    }
+    else
+    {
+        <ul>
+            @foreach (var r in results)
+            {
+                <li>
+                    <img src="@r.Poster" width="50" />
+                    <a href="/moviedetails/@r.ImdbId">@r.Title (@r.Year)</a>
+                </li>
+            }
+        </ul>
+    }
+}
+
+@if (history != null)
+{
+    <h4>Search History</h4>
+    <ul>
+        @foreach (var h in history)
+        {
+            <li>@h.Query (@h.SearchedAt.ToLocalTime())</li>
+        }
+    </ul>
+}
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="text-danger">@errorMessage</div>
+}
+
+@code {
+    private string query = string.Empty;
+    private List<MovieSummary> results;
+    private List<SearchHistory> history;
+    private string errorMessage;
+
+    private async Task Search()
+    {
+        errorMessage = null;
+        var q = (query ?? string.Empty).Trim();
+        if (string.IsNullOrWhiteSpace(q))
+        {
+            results = new List<MovieSummary>();
+            return;
+        }
+        try
+        {
+            var res = await Http.GetFromJsonAsync<SearchResponse>($"/api/movies/search?query={System.Uri.EscapeDataString(q)}");
+            results = res?.Search ?? new List<MovieSummary>();
+            await LoadHistory();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            results = new List<MovieSummary>();
+        }
+    }
+
+    private async Task LoadHistory()
+    {
+        errorMessage = null;
+        try
+        {
+            history = await Http.GetFromJsonAsync<List<SearchHistory>>("/api/movies/history")
+                ?? new List<SearchHistory>();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            history = new List<SearchHistory>();
+        }
+    }
+
+    private async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await Search();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadHistory();
+    }
+}

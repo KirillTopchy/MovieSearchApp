@@ -1,0 +1,57 @@
+@page "/moviedetails/{id}"
+@using MovieSearchFrontend.Models
+@inject HttpClient Http
+@code { [Parameter] public string id { get; set; } }
+
+<h3>Details</h3>
+@if (movie != null)
+{
+    <div class="movie-details">
+        <div class="header">
+            <img src="@movie.Poster" alt="Poster" />
+            <div>
+                <h2>@movie.Title (@movie.Year)</h2>
+                <p><strong>Rated:</strong> @movie.Rated</p>
+                <p><strong>Released:</strong> @movie.Released</p>
+                <p><strong>Runtime:</strong> @movie.Runtime</p>
+                <p><strong>Genre:</strong> @movie.Genre</p>
+                <p><strong>Type:</strong> @movie.Type</p>
+            </div>
+        </div>
+        <p><strong>Plot:</strong> @movie.Plot</p>
+        <p><strong>Director:</strong> @movie.Director</p>
+        <p><strong>Writer:</strong> @movie.Writer</p>
+        <p><strong>Actors:</strong> @movie.Actors</p>
+        <p><strong>Language:</strong> @movie.Language</p>
+        <p><strong>Country:</strong> @movie.Country</p>
+        <p><strong>Awards:</strong> @movie.Awards</p>
+        <p><strong>Metascore:</strong> @movie.Metascore</p>
+        <p><strong>IMDb Rating:</strong> @movie.ImdbRating (@movie.ImdbVotes votes)</p>
+        <p><strong>Box Office:</strong> @movie.BoxOffice</p>
+        <p><strong>Production:</strong> @movie.Production</p>
+        @if (!string.IsNullOrWhiteSpace(movie.Website) && movie.Website != "N/A")
+        {
+            <p><strong>Website:</strong> <a href="@movie.Website" target="_blank" rel="noopener">@movie.Website</a></p>
+        }
+        @if (movie.Ratings?.Count > 0)
+        {
+            <div>
+                <h4>Ratings</h4>
+                <ul>
+                    @foreach (var r in movie.Ratings)
+                    {
+                        <li><strong>@r.Source:</strong> @r.Value</li>
+                    }
+                </ul>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private MovieDetail movie;
+    protected override async Task OnParametersSetAsync()
+    {
+        movie = await Http.GetFromJsonAsync<MovieDetail>($"/api/movies/details/{id}");
+    }
+}
