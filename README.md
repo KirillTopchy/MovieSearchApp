@@ -12,16 +12,11 @@ A simple two-project solution for searching movies via OMDb API with a Blazor Se
 
 ## Configuration
 1. Backend app settings:
-   - Open `MovieSearchBackend/appsettings.Development.json` (or `appsettings.json`).
+   - Open `MovieSearchBackend/appsettings.json`
    - Set `Omdb:ApiKey` to your OMDb API key.
-   - Optionally adjust `ConnectionStrings:DefaultConnection` if you want a custom DB location.
 
 Example:
 ```
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Data Source=app.db"
-  },
   "Omdb": {
     "BaseUrl": "https://www.omdbapi.com/",
     "ApiKey": "YOUR_KEY"
@@ -69,12 +64,10 @@ You can run backend and frontend from the solution directory.
   - Middleware for consistent error handling: `Middleware/ExceptionHandlingMiddleware.cs`.
 - Frontend:
   - Blazor Server pages under `MovieSearchFrontend/Pages` (e.g., `Index.razor`, `MovieDetails.razor`).
-  - Models mirror backend DTOs for deserialization.
 - API endpoints (default):
   - `GET /api/movies/search?query={title}`
   - `GET /api/movies/{imdbId}`
   - `GET /api/movies/history`
-- OMDb usage: The backend calls OMDb with your API key; the frontend calls backend endpoints.
 - Local DB: SQLite (via `Data Source=app.db`) by default.
 
 ## Troubleshooting
