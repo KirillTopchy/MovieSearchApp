@@ -13,9 +13,9 @@ public class MoviesController(IMovieService movieService) : ControllerBase
     private readonly IMovieService _movieService = movieService;
 
     [HttpGet("search")]
-    public async Task<ActionResult<SearchResponse>> Search([FromQuery, Required] string query)
+    public async Task<ActionResult<SearchResponse>> Search([FromQuery, Required] string query, [FromQuery] int page = 1)
     {
-        var doc = await _movieService.SearchAsync(query);
+        var doc = await _movieService.SearchAsync(query, page);
         return Ok(doc);
     }
 

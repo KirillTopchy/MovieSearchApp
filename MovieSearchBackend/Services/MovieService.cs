@@ -10,10 +10,10 @@ public class MovieService(IOmdbService omdb, IHistoryRepository history) : IMovi
     private readonly IOmdbService _omdb = omdb;
     private readonly IHistoryRepository _history = history;
 
-    public async Task<SearchResponse> SearchAsync(string title)
+    public async Task<SearchResponse> SearchAsync(string title, int page = 1)
     {
         await _history.AddQueryAsync(title);
-        return await _omdb.SearchByTitleAsync(title);
+        return await _omdb.SearchByTitleAsync(title, page);
     }
 
     public async Task<MovieDetail> GetByIdAsync(string id)

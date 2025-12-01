@@ -5,14 +5,17 @@
 
 <h3 class="movie-search-title">Movie Search</h3>
 
-<input @bind-value="query"
-       @bind-value:event="oninput"
-       placeholder="Enter title"
-       @onkeypress="HandleKeyPress" />
+<div class="search-bar">
+    <input @bind-value="query"
+           @bind-value:event="oninput"
+           placeholder="Enter title"
+           @onkeypress="HandleKeyPress" />
 
-<button @onclick="Search">
-    Search
-</button>
+    <button class="btn btn-primary btn-sm search-btn"
+            @onclick="() => Search(State.CurrentPage)">
+        Search
+    </button>
+</div>
 
 @if (State.MoviesSummaries != null)
 {
@@ -31,6 +34,19 @@
                 </li>
             }
         </ul>
+
+        @if (State.TotalResults > State.PageSize)
+        {
+            <nav class="pagination-controls" aria-label="Search results pages">
+                <button class="btn btn-outline-secondary btn-sm"
+                        @onclick="PrevPage"
+                        disabled="@(State.CurrentPage <= 1)">Prev</button>
+                <span class="page-info">Page @State.CurrentPage of @TotalPages</span>
+                <button class="btn btn-outline-secondary btn-sm"
+                        @onclick="NextPage"
+                        disabled="@(State.CurrentPage >= TotalPages)">Next</button>
+            </nav>
+        }
     }
 }
 
@@ -53,21 +69,27 @@
 @code {
     private string query = string.Empty;
     private string errorMessage = string.Empty;
+    private int TotalPages => (int)Math.Ceiling((double)State.TotalResults / State.PageSize);
 
-    private async Task Search()
+    private async Task Search(int page)
     {
         errorMessage = string.Empty;
         if (string.IsNullOrWhiteSpace(query))
         {
             State.MoviesSummaries = [];
             State.SearchPerformed = false;
+            State.TotalResults = 0;
+            State.CurrentPage = 1;
             return;
         }
         try
         {
-            var results = await Api.SearchAsync(query);
+            var response = await Api.SearchAsync(query, page);
             State.LastQuery = query;
-            State.MoviesSummaries = results;
+            State.MoviesSummaries = response?.Search ?? [];
+            State.TotalResults = response?.TotalResults ?? 0;
+            State.PageSize = 10;
+            State.CurrentPage = page;
             State.SearchPerformed = true;
 
             await LoadHistory();
@@ -77,7 +99,25 @@
             errorMessage = ex.Message;
             State.SearchPerformed = false;
             State.MoviesSummaries = new();
+            State.TotalResults = 0;
+            State.CurrentPage = 1;
             State.LastQuery = string.Empty;
+        }
+    }
+
+    private async Task PrevPage()
+    {
+        if (State.CurrentPage > 1)
+        {
+            await Search(State.CurrentPage - 1);
+        }
+    }
+
+    private async Task NextPage()
+    {
+        if (State.CurrentPage < TotalPages)
+        {
+            await Search(State.CurrentPage + 1);
         }
     }
 
@@ -99,7 +139,7 @@
     {
         if (e.Key == "Enter")
         {
-            await Search();
+            await Search(1);
         }
     }
 

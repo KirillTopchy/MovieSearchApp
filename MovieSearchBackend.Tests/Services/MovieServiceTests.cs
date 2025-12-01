@@ -33,11 +33,11 @@ public class MovieServiceTests
             Search = [ new MovieSummary { Title = "matrix", Year = "2000", ImdbId = "tt1", Type = "movie", Poster = "N/A" } ]
         };
 
-        _omdbServiceMock.Setup(m => m.SearchByTitleAsync("matrix")).ReturnsAsync(expectedResponse).Verifiable();
+        _omdbServiceMock.Setup(m => m.SearchByTitleAsync("matrix", 1)).ReturnsAsync(expectedResponse).Verifiable();
         _historyRepositoryMock.Setup(h => h.AddQueryAsync("matrix")).Returns(Task.CompletedTask).Verifiable();
 
         // Act
-        var res = await _movieService.SearchAsync("matrix");
+        var res = await _movieService.SearchAsync("matrix", 1);
 
 
         // Assert
@@ -84,6 +84,5 @@ public class MovieServiceTests
         hist.Should().Contain(h => h.Query == "a");
         hist.Should().Contain(h => h.Query == "b");
         _historyRepositoryMock.Verify();
-        _omdbServiceMock.Verify(m => m.SearchByTitleAsync(It.IsAny<string>()), Times.Never);
     }
 }

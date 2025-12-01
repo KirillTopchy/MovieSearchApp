@@ -8,7 +8,7 @@ public class SearchResponse
     public List<MovieSummary> Search { get; set; } = [];
 
     [JsonPropertyName("totalResults")]
-    [JsonConverter(typeof(IntegerStringConverter))]
+    [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     public int TotalResults { get; set; }
 
     [JsonPropertyName("Response")]

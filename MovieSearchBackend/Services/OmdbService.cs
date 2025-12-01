@@ -14,9 +14,14 @@ public class OmdbService(HttpClient http, IOptions<OmdbOptions> options) : IOmdb
     private readonly string _apiKey = options?.Value?.ApiKey ?? throw new ArgumentException("Omdb:ApiKey is not configured");
     private const string MovieNotFoundMessage = "Movie not found!";
 
-    public async Task<SearchResponse> SearchByTitleAsync(string title)
+    public async Task<SearchResponse> SearchByTitleAsync(string title, int page = 1)
     {
-        var url = $"{_baseUrl}{_apiKey}&s={Uri.EscapeDataString(title)}";
+        if (page < 1)
+        {
+            page = 1;
+        }
+
+        var url = $"{_baseUrl}{_apiKey}&s={Uri.EscapeDataString(title)}&page={page}";
         var content = await FetchAsync(url);
         var doc = Deserialize<SearchResponse>(content);
 

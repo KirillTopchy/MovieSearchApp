@@ -8,10 +8,9 @@ public class MovieApiClient(HttpClient httpClient)
     private static readonly JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
     private readonly HttpClient _httpClient = httpClient;
 
-    public async Task<List<MovieSummary>> SearchAsync(string query, CancellationToken cancellationToken = default)
+    public async Task<SearchResponse?> SearchAsync(string query, int page = 1, CancellationToken cancellationToken = default)
     {
-        var res = await GetAsync<SearchResponse>($"/api/movies/search?query={Uri.EscapeDataString(query)}", cancellationToken);
-        return res?.Search ?? [];
+        return await GetAsync<SearchResponse>($"/api/movies/search?query={Uri.EscapeDataString(query)}&page={page}", cancellationToken);
     }
 
     public Task<MovieDetail?> GetDetailsAsync(string id, CancellationToken cancellationToken = default)
