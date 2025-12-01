@@ -1,7 +1,7 @@
 @page "/moviedetails/{id}"
 @using MovieSearchFrontend.Models
-@inject HttpClient Http
-@code { [Parameter] public string id { get; set; } }
+@inject MovieSearchFrontend.Services.MovieApiClient Api
+@code { [Parameter] public string? id { get; set; } }
 
 <h3>Details</h3>
 @if (movie != null)
@@ -38,9 +38,9 @@
             <div>
                 <h4>Ratings</h4>
                 <ul>
-                    @foreach (var r in movie.Ratings)
+                    @foreach (var rating in movie.Ratings)
                     {
-                        <li><strong>@r.Source:</strong> @r.Value</li>
+                        <li><strong>@rating.Source:</strong> @rating.Value</li>
                     }
                 </ul>
             </div>
@@ -49,9 +49,14 @@
 }
 
 @code {
-    private MovieDetail movie;
+    private MovieDetail? movie;
     protected override async Task OnParametersSetAsync()
     {
-        movie = await Http.GetFromJsonAsync<MovieDetail>($"/api/movies/details/{id}");
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            movie = null;
+            return;
+        }
+        movie = await Api.GetDetailsAsync(id);
     }
 }

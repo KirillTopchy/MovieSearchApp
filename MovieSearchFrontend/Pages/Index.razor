@@ -1,39 +1,46 @@
 ﻿@page "/"
 @using MovieSearchFrontend.Models
-@inject HttpClient Http
+@inject MovieSearchFrontend.Services.MovieApiClient Api
+@inject MovieSearchFrontend.Services.SearchState State
 
-<h3>Movie Search</h3>
+<h3 class="movie-search-title">Movie Search</h3>
 
-<input @bind-value="query" @bind-value:event="oninput" placeholder="Enter title" @onkeypress="HandleKeyPress" />
-<button @onclick="Search" disabled="@string.IsNullOrWhiteSpace(query)">Search</button>
+<input @bind-value="query"
+       @bind-value:event="oninput"
+       placeholder="Enter title"
+       @onkeypress="HandleKeyPress" />
 
-@if (results != null)
+<button @onclick="Search">
+    Search
+</button>
+
+@if (State.MoviesSummaries != null)
 {
-    if (results.Count == 0)
+    if (State.MoviesSummaries.Count == 0 && State.SearchPerformed)
     {
         <p><em>No results found.</em></p>
     }
     else
     {
         <ul>
-            @foreach (var r in results)
+            @foreach (var movieSummary in State.MoviesSummaries)
             {
-                <li>
-                    <img src="@r.Poster" width="50" />
-                    <a href="/moviedetails/@r.ImdbId">@r.Title (@r.Year)</a>
+                <li class="movie-summary">
+                    <img src="@movieSummary.Poster" width="50" />
+                    <a href="/moviedetails/@movieSummary.ImdbId">@movieSummary.Title (@movieSummary.Year)</a>
                 </li>
             }
         </ul>
     }
 }
 
-@if (history != null)
+@if (State.SearchHistory != null)
 {
-    <h4>Search History</h4>
+    <h4 class="search-history-title">Search History</h4>
     <ul>
-        @foreach (var h in history)
+        @foreach (var searchHistoryItem in State.SearchHistory)
         {
-            <li>@h.Query (@h.SearchedAt.ToLocalTime())</li>
+            <li>@searchHistoryItem.Query (@searchHistoryItem.SearchedAt.ToLocalTime())</li>
         }
     </ul>
 }
@@ -45,44 +52,46 @@
 
 @code {
     private string query = string.Empty;
-    private List<MovieSummary> results;
-    private List<SearchHistory> history;
-    private string errorMessage;
+    private string errorMessage = string.Empty;
 
     private async Task Search()
     {
-        errorMessage = null;
-        var q = (query ?? string.Empty).Trim();
-        if (string.IsNullOrWhiteSpace(q))
+        errorMessage = string.Empty;
+        if (string.IsNullOrWhiteSpace(query))
         {
-            results = new List<MovieSummary>();
+            State.MoviesSummaries = [];
+            State.SearchPerformed = false;
             return;
         }
         try
         {
-            var res = await Http.GetFromJsonAsync<SearchResponse>($"/api/movies/search?query={System.Uri.EscapeDataString(q)}");
-            results = res?.Search ?? new List<MovieSummary>();
+            var results = await Api.SearchAsync(query);
+            State.LastQuery = query;
+            State.MoviesSummaries = results;
+            State.SearchPerformed = true;
+
             await LoadHistory();
         }
         catch (Exception ex)
         {
             errorMessage = ex.Message;
-            results = new List<MovieSummary>();
+            State.SearchPerformed = false;
+            State.MoviesSummaries = new();
+            State.LastQuery = string.Empty;
         }
     }
 
     private async Task LoadHistory()
     {
-        errorMessage = null;
+        errorMessage = string.Empty;
         try
         {
-            history = await Http.GetFromJsonAsync<List<SearchHistory>>("/api/movies/history")
-                ?? new List<SearchHistory>();
+            State.SearchHistory = await Api.GetHistoryAsync();
         }
         catch (Exception ex)
         {
             errorMessage = ex.Message;
-            history = new List<SearchHistory>();
+            State.SearchHistory = new List<SearchHistory>();
         }
     }
 
@@ -96,6 +105,11 @@
 
     protected override async Task OnInitializedAsync()
     {
+        if (State.SearchPerformed && !string.IsNullOrWhiteSpace(State.LastQuery))
+        {
+            query = State.LastQuery!;
+        }
+
         await LoadHistory();
     }
 }
